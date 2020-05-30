@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Newtonsoft.Json;
@@ -12,11 +13,13 @@ namespace Otomat.Client
 {
     class Program
     {
-         private static string IdpUri => "###";
-         private static string ApiUri => "###";
-            
-        
-        private static async Task Main()
+         private static string IdpUri => "####";
+         private static string ApiUri => "####";
+
+         private static string TcNo => "12345678901";
+
+
+         private static async Task Main()
         {
             // discover endpoints from metadata
             var client = new HttpClient();
@@ -34,7 +37,7 @@ namespace Otomat.Client
                 Address = disco.TokenEndpoint,
                 ClientId = "###",
                 ClientSecret = "###",
-                Scope = "###"
+                Scope = "####"
             });
             
             if (tokenResponse.IsError)
@@ -58,27 +61,22 @@ namespace Otomat.Client
             foreach (var item in catalogItems)
             {
                 Console.WriteLine($"{item.Name} - {item.Desc} - {item.Code} - {item.Image}");
-            }
-            
-            
-            // Pick up first catalog item
-            if (catalogItems.FirstOrDefault() is CatalogItemForFlowModel  catalogItem)
-            {
-                var pickUpResult = await PickUp(catalogItem.Code, tokenResponse.AccessToken);
+                
+                var pickUpResult = await PickUp(item.Code, tokenResponse.AccessToken);
 
                 if (pickUpResult == null)
                 {
-                    return;
+                    continue;
                 }
                 
                 Console.WriteLine(pickUpResult.OtpCode);
                 Console.WriteLine(pickUpResult.OrderId);
                 // Confirm pick up
-                await Confirm(pickUpResult.OrderId, tokenResponse.AccessToken);
-            } 
+                await Confirm(pickUpResult.OrderId, TcNo, tokenResponse.AccessToken);
+            }
         }
 
-        private static async Task Confirm(int orderId, string token)
+        private static async Task Confirm(int orderId, string tcNo, string token)
         {
             var apiClient = new HttpClient();
             apiClient.SetBearerToken(token);
@@ -86,7 +84,13 @@ namespace Otomat.Client
                 .Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            var response = await apiClient.PutAsync($"{ApiUri}/api/otomat/pick-up/{orderId}/confirm", null);
+            var response = await apiClient.PutAsync($"{ApiUri}/api/otomat/pick-up/{orderId}/confirm", 
+                new StringContent(
+                JsonConvert.SerializeObject(new
+                    OtomatFlowConfirmModel
+                    {
+                        TcIdentityNumber  = tcNo
+                    }), Encoding.UTF8, "application/json"));
             
             if (!response.IsSuccessStatusCode)
             {

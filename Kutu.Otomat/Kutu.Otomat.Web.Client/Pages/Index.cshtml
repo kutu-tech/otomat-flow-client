@@ -1,0 +1,26 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    
+    <ul>
+        @foreach (var catalogItem in Model.Model)
+        {
+            <li>
+                <table>
+                    <tr>
+                        <td data-cy="catalog-name">@catalogItem.Name</td>
+                        <td>@catalogItem.Desc</td>
+                        <td>@catalogItem.Code</td>
+                        <td>@catalogItem.Price</td>
+                        <td><img src="@catalogItem.Image" alt="@catalogItem.Name"/></td>
+                    </tr>
+                </table>
+            </li>
+        }
+    </ul>
+</div>
