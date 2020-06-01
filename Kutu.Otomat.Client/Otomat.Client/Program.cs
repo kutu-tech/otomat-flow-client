@@ -13,8 +13,8 @@ namespace Otomat.Client
 {
     class Program
     {
-         private static string IdpUri => "####";
-         private static string ApiUri => "####";
+         private static string IdpUri => "###";
+         private static string ApiUri => "###";
 
          private static string TcNo => "12345678901";
 
@@ -71,6 +71,7 @@ namespace Otomat.Client
                 
                 Console.WriteLine(pickUpResult.OtpCode);
                 Console.WriteLine(pickUpResult.OrderId);
+                Console.WriteLine(pickUpResult.LockerNumber);
                 // Confirm pick up
                 await Confirm(pickUpResult.OrderId, TcNo, tokenResponse.AccessToken);
             }

@@ -4,5 +4,7 @@ namespace Otomat.Client.Models
     {
         public int OrderId { get; set; }
         public string OtpCode { get; set; }
+        
+        public string LockerNumber { get; set; }
     }
 }
