@@ -48,6 +48,8 @@ namespace Otomat.Client
 
             Console.WriteLine(tokenResponse.Json);
             Console.WriteLine("\n\n");
+
+            
             
             
             // Get Catalog Items
@@ -72,10 +74,28 @@ namespace Otomat.Client
                 Console.WriteLine(pickUpResult.OtpCode);
                 Console.WriteLine(pickUpResult.OrderId);
                 Console.WriteLine(pickUpResult.LockerNumber);
+                
+                // Cancel pick up
+                await Cancel(pickUpResult.OrderId, tokenResponse.AccessToken);
+
                 // Confirm pick up
-                await Confirm(pickUpResult.OrderId, TcNo, tokenResponse.AccessToken);
+                // await Confirm(pickUpResult.OrderId, TcNo, tokenResponse.AccessToken);
             }
         }
+
+         private static async Task Cancel(int orderId, string token)
+         {
+             var apiClient = new HttpClient();
+             apiClient.SetBearerToken(token);
+             apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+             var response = await apiClient.PutAsync($"{ApiUri}/api/otomat/pick-up/{orderId}/cancel", null);
+
+             if (!response.IsSuccessStatusCode)
+             {
+                 Console.WriteLine(response.StatusCode);
+             }
+         }
 
         private static async Task Confirm(int orderId, string tcNo, string token)
         {
